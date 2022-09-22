@@ -21,8 +21,24 @@ app.listen(3001, () => {
 
 
 app.get('/api/getEmployeeList', (req, res) => {
-    const sqlSelect = "SELECT * FROM employee";
+    const sqlSelect = "select e.employee_id, `status`,`name`,IC_number, e.work_permit_no, wp.end_date as expiry_date, birthday, department, e.position, ed.start_date, salary, email, phone_No, PayNow_No, bank_acc from employee e "+
+    "left join employee_detail ed on e.employee_id = ed.id "+
+    "left join workpermit wp on e.work_permit_no = wp.work_permit_no "+
+    "left join position p on e.position = p.position "+
+    "group by id, e.position "+
+    "order by id "
     db.query(sqlSelect, (err, result) => {
+        res.send(result);
+    });
+})
+
+app.get('/api/getLeave', (req, res) => {
+    const sqlSelect = "select employee_id, name, paid_leave, medical_leave, compassionate_leave from employee e "+
+    "join employee_detail ed on e.employee_id = ed.id "+
+    "where status = 'active' "+
+    "group by employee_id"
+    db.query(sqlSelect, (err, result) => {
+        console.log(result)
         res.send(result);
     });
 })
