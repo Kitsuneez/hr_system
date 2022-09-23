@@ -3,6 +3,7 @@ const app = express();
 const mysql = require('mysql')
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const { request } = require('express');
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -38,9 +39,30 @@ app.get('/api/getLeave', (req, res) => {
     "where status = 'active' "+
     "group by employee_id"
     db.query(sqlSelect, (err, result) => {
-        console.log(result)
         res.send(result);
     });
+})
+
+app.post('/api/submitRequest', (req, res) => {
+    const employee_id = req.body.employee_id;
+    const type_of_request = req.body.leavetype;
+    const days = req.body.days;
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var yyyy = today.getFullYear();
+
+    today = yyyy + '-' + mm + '-' + dd;
+    const sqlInsert = "INSERT INTO porousway.request (`employee_id`,`number_of_days`, `type_of_request`, `date_of_request`) VALUES (?,?, ?, ?)"
+    db.query(sqlInsert, [employee_id, days, type_of_request, today], (err, result)=>{
+        console.log(result);
+        console.log(err);
+        if(err == null){
+            res.send("OK")
+        }
+        res.send(err)
+        return result
+    })
 })
 
 app.get('/api/getDashboardData', (req, res) => {
@@ -50,7 +72,6 @@ app.get('/api/getDashboardData', (req, res) => {
     "WHERE end_date-curdate() < 90 "+
     "GROUP by e.work_permit_no;";
     db.query(sqlSelect, (err, result) => {
-        res.send(result);
     });
 })
 
