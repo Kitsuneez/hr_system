@@ -47,31 +47,56 @@ app.post('/api/submitRequest', (req, res) => {
     const employee_id = req.body.employee_id;
     const type_of_request = req.body.leavetype;
     const days = req.body.days;
+    const from_date = req.body.from_date;
+    var to_date = new Date(from_date)
+    to_date.setDate(to_date.getDate() + parseInt(days));
+    to_date = to_date.getFullYear() + '-' + String(to_date.getMonth() + 1).padStart(2, '0') + '-' + String(to_date.getDate()).padStart(2, '0');;
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0');
     var yyyy = today.getFullYear();
 
     today = yyyy + '-' + mm + '-' + dd;
-    const sqlInsert = "INSERT INTO porousway.request (`employee_id`,`number_of_days`, `type_of_request`, `date_of_request`) VALUES (?,?, ?, ?)"
-    db.query(sqlInsert, [employee_id, days, type_of_request, today], (err, result)=>{
-        console.log(result);
-        console.log(err);
+    const sqlInsert = "INSERT INTO porousway.request (`employee_id`,`number_of_days`, `type_of_request`, `date_of_request`, from_date, to_date) VALUES (?,?, ?, ?, ?, ?)"
+    
+    db.query(sqlInsert, [employee_id, days, type_of_request, today, from_date, to_date], (err, result)=>{
         if(err == null){
             res.send("OK")
+        }else{
+            res.send(err)
         }
-        res.send(err)
-        return result
+    })
+})
+
+app.get('/api/getListOfRequest', (req, res)=>{
+    const sqlSelect = "SELECT employee_id, name, type_of_request, from_date, to_date, number_of_days, date_of_request FROM request r "+
+    "right join employee_detail ed on r.employee_id = ed.id "+
+    "where r.status = 'pending' and ed.status = 'active'"
+
+    db.query(sqlSelect, (err, result)=>{
+        res.send(result)
     })
 })
 
 app.get('/api/getDashboardData', (req, res) => {
-    const sqlSelect = "SELECT employee_id, e.work_permit_no, end_date, name FROM employee e "+
-    "RIGHT JOIN workpermit wp ON e.work_permit_no = wp.work_permit_no "+
-    "join employee_detail ed on e.employee_id = ed.id "+
-    "WHERE end_date-curdate() < 90 "+
-    "GROUP by e.work_permit_no;";
+    const sqlSelect = "select e.employee_id, ed.status as status,`name`,IC_number, null as work_permit_no, null as expiry_date, REPLACE(type_of_request, '_', ' ') as type_of_request, from_date, to_date from employee e "+
+    "left join employee_detail ed on e.employee_id = ed.id "+
+    "left join workpermit wp on e.work_permit_no = wp.work_permit_no "+
+    "left join position p on e.position = p.position "+
+    "right join request r on e.employee_id = r.employee_id "+
+	"where ed.status ='active' and r.status='pending'"+
+    
+    "union all " +
+    
+    "select e.employee_id, ed.status as status,`name`,IC_number, e.work_permit_no, wp.end_date as expiry_date, null as type_of_request, from_date, to_date from employee e "+
+    "left join employee_detail ed on e.employee_id = ed.id "+
+    "left join workpermit wp on e.work_permit_no = wp.work_permit_no "+
+    "left join position p on e.position = p.position "+
+    "right join request r on e.employee_id = r.employee_id "+
+	"where end_date-curdate() < 90 "+
+    "group by e.work_permit_no;"
     db.query(sqlSelect, (err, result) => {
+        res.send(result);
     });
 })
 
@@ -81,6 +106,22 @@ app.post('/api/insert', (req, res) => {
 
     const sqlInsert = "INSERT INTO employee (employee_id, position) VALUES (?,?)"
     db.query(sqlInsert, [employee_id, position], (err, result) => {
-        console.log(result)
+    });
+})
+
+app.post('/api/approveRequest', (req, res) => {
+    const id = req.body.id
+    const type_of_request = req.body.type
+    const status = req.body.status
+    const sqlUpdate = "update request r, employee_detail ed set r.status = '"+status+"' , ed."+ type_of_request + "= ed." + type_of_request + " - r.number_of_days " +
+    "where r.employee_id = "+ id + " "+ " and r.type_of_request = '" + 
+    type_of_request + "' and ed.id = r.employee_id"
+    db.query(sqlUpdate, (err, result) => {
+        if(err == null){
+            res.send("OK")
+        }else{
+            console.log(err)
+            res.send(err)
+        }
     });
 })
