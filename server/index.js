@@ -7,8 +7,8 @@ const { request, response } = require('express');
 
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'porousway',
-    password: 'password123',
+    user: 'root',
+    password: 'Hahahehe31!',
     database: 'porousway',
     multipleStatements: true
 })
