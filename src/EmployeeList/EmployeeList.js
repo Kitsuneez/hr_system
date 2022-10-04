@@ -12,11 +12,19 @@ const EmployeeList = () => {
     const [variant, setVariant] = useState("secondary") 
 
     useEffect(()=>{
-      Axios.get("http://localhost:3001/api/getEmployeeList").then((response)=>{
-          setEmployeeList(response.data)
-          setFilteredList(response.data)
-      }).catch((err)=>{
-        console.log(err)
+      // Axios.get("http://localhost:3001/api/getEmployeeList").then((response)=>{
+      //     setEmployeeList(response.data)
+      //     setFilteredList(response.data)
+      // }).catch((err)=>{
+      //   console.log(err)
+      // })
+      $.ajax({
+        method: 'get',
+        url: "http://localhost:3001/api/getEmployeeList",
+        success: function(data){
+          setEmployeeList(data)
+          setFilteredList(data)
+        }
       })
     }, [])
     var id = 0;

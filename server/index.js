@@ -8,7 +8,7 @@ const { request, response } = require('express');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Nn@84564519',
+    password: 'Hahahehe31!',
     database: 'porousway',
     multipleStatements: true
 })
@@ -97,11 +97,15 @@ app.get('/api/getEmployeeList', (req, res) => {
     const sqlSelect = "select e.employee_id, `status`,`name`,IC_number, birthday, department, e.position, ed.start_date, salary, email, phone_No, PayNow_No, bank_acc, ed.work_permit_no from employee e "+
     "left join employee_detail ed on e.employee_id = ed.id "+
     "left join position p on e.position = p.position "+
-    "group by id, e.position "+
     "order by id "
     db.query(sqlSelect, (err, result) => {
-        console.log(err)
-        res.send(result);
+        if(err != null){
+            console.log(err)
+            res.send([])
+        }else{
+            console.log(result)
+            res.send(result);
+        }
     });
 })
 
@@ -262,6 +266,7 @@ app.post('/api/addEmployee', (req, res) =>{
                     console.log("added")
                     res.send("OK")
                 }else{
+                    console.log(err)
                     res.send(err.message)
                 }
             });
@@ -279,6 +284,7 @@ app.post('/api/addEmployee', (req, res) =>{
                     console.log("added")
                     res.send("OK")
                 }else{
+                    console.log(err)
                     res.send(err.message)
                 }
             });

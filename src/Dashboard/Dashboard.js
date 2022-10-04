@@ -9,7 +9,7 @@ const Dashboard = () => {
     useEffect(()=>{
         $.ajax({
             type: "GET",
-            url: "http://localhost:3001/api/getDashboardData",
+            url: "localhost:3001/api/getDashboardData",
             processData: true,
             success: function(data) {
                 setdashboard(data)
