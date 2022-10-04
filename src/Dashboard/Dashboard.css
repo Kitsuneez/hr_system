@@ -1,0 +1,51 @@
+.dashboard{
+    border: 2px solid black;
+    border-top: 4px solid darkcyan;
+    margin: 2%;
+    margin-top: 3%;
+    border-radius: 5px 5px 0px 0px;
+    text-align: center;
+    margin-bottom: 0;
+    background-color: white;
+}
+
+.data-box{
+    border: 2px solid black;
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-top: 0;
+    border-top: 0;
+    border-radius: 0px 0px 5px 5px;
+    max-height: 300px;
+    overflow: auto;
+    margin-bottom: 20px;
+    text-align: left;
+    background-color: white;
+    min-height: 300px;
+}
+.value-right{
+    float: right;
+    text-align: right;
+    background-color: transparent;
+}
+
+.request{
+    text-transform: capitalize;
+    background-color: transparent
+}
+
+hr{
+    margin-bottom:0;
+}
+
+.rows{
+    background-color: white;
+}
+
+.Date{
+    background-color: transparent;
+}
+
+.rows:nth-child(odd) {
+    background: #EEEEEE;
+}

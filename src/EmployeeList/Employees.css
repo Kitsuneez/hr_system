@@ -1,0 +1,47 @@
+*{
+    background-color: white;
+}
+header{
+    font-size: xx-large;
+}
+thead{
+    background-color: black;
+    text-align: center;
+}
+
+table{
+    text-align: left;
+}
+ul, ul li, .date{
+    background-color: transparent;
+}
+
+.labels{
+    margin-right: 20px;
+}
+.blue-btn {
+    width: 10rem;
+    background: #2098ce;
+    font-weight: bold;
+    color: white;
+    border: 0 none;
+    border-radius: 25px;
+    cursor: pointer;
+    padding: 10px 5px;
+    margin: 10px 5px;
+}
+
+.blue-btn:hover,
+.blue-btn:focus {
+    box-shadow: 0 0 0 2px white, 0 0 0 3px #2098ce;
+}
+
+.admin-padding{
+    background-color: #EEEEEE;
+    text-align:left;
+}
+
+.App{
+    background-color: #EEEEEE!important;
+}
+
