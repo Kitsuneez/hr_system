@@ -60,14 +60,18 @@ const Leave = () => {
     },[])
 
     useEffect(()=>{
-      Axios.get("http://localhost:3001/api/getLeave").then((response)=>{
-          setLeaves(response.data)
-      }).catch((err)=>{
-        console.log(err)
-      })
+        $.ajax({
+            type:'get',
+            url:"http://localhost:3001/api/getLeave",
+            success: function(data){
+                setLeaves(data)
+            }
+        })
     }, [])
 
-    const submitRequest = async () => {
+    const submitRequest = (e) => {
+        console.log(":?")
+        e.preventDefault()
         $.ajax({
             type: "POST",
             url: "http://localhost:3001/api/submitRequest",
@@ -124,7 +128,7 @@ const Leave = () => {
                                 </Modal.Header>
                                 <Modal.Body>
                                     <h5>ID: {modalData.employee_id}<br/>Name: {modalData.name}</h5>
-                                    <form action={submitRequest}>
+                                    <form onSubmit={(e)=>submitRequest(e)}>
                                         <input 
                                             type="hidden" 
                                             value={modalData.employee_id} 
@@ -138,8 +142,9 @@ const Leave = () => {
                                         name="leave" 
                                         id={modalData.employee_id + "type"} 
                                         onChange={(e) => {settingMax(modalData.employee_id, e.target.value);}}
-                                        required>
-                                        <option disabled selected>Choose One</option>
+                                        required
+                                        defaultValue={"Default"}>
+                                        <option disabled value="Default">Choose One</option>
                                         <option value="paid_leave">Paid Leave</option>
                                         <option value="medical_leave">Medical Leave</option>
                                         <option value="compassionate_leave">Compassionate Leave</option>
@@ -153,11 +158,11 @@ const Leave = () => {
                                         id={modalData.employee_id + "days"}
                                         onChange = {(e) => {setdays(e.target.value);}}
                                         /><br/><br/>
-                                        <label for="from_date" style={{marginRight: '5px'}}>From </label>
+                                        <label htmlFor="from_date" style={{marginRight: '5px'}}>From </label>
                                         <input type ='date' name="from_date" min={getDate} id="datefield"  onChange={(e) => setfromdate(e.target.value)} required/>
-                                        <label for="from_date" style={{marginLeft: '5px', marginRight: '5px'}}>to </label>
+                                        <label htmlFor="from_date" style={{marginLeft: '5px', marginRight: '5px'}}>to </label>
                                         <input type ='date' name="to_date" min={getDate} onChange={(e) => setToDate(e.target.value)} required/><br/><br/>
-                                        <input type="submit" value="Submit" />
+                                        <button type="submit" className="blue-btn" id='submit'>Submit Request</button>
                                     </form>
                                 </Modal.Body>
                                 <Modal.Footer>

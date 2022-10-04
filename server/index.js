@@ -1,9 +1,15 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const pino = require('express-pino-logger')()
 const app = express();
 const mysql = require('mysql')
-const bodyParser = require('body-parser');
 const cors = require('cors');
-const { request, response } = require('express');
+const e = require('express');
+
+app.use(express.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+app.use(pino)
+app.use(cors())
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -53,7 +59,7 @@ db.connect(function(err){
             "`forklift_expiry` date DEFAULT NULL,"+
             "`driving_license_expiry` date DEFAULT NULL,"+
             "`coretrade_expiry` date DEFAULT NULL,"+
-            "`work_permit_no` varchar(9) DEFAULT NULL,"+
+            "`work_permit_no` varchar(12) DEFAULT NULL,"+
             "`last_reset` date DEFAULT NULL,"+
             "PRIMARY KEY (`id`),"+
             "UNIQUE KEY `IC_number_UNIQUE` (`IC_number`)"+
@@ -84,13 +90,6 @@ db.connect(function(err){
           })
 })
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors())
-app.use(express.json());
-
-app.listen(3001, () => {
-    console.log('running on port 3001');
-});
 
 
 app.get('/api/getEmployeeList', (req, res) => {
@@ -103,7 +102,6 @@ app.get('/api/getEmployeeList', (req, res) => {
             console.log(err)
             res.send([])
         }else{
-            console.log(result)
             res.send(result);
         }
     });
@@ -120,6 +118,7 @@ app.get('/api/getLeave', (req, res) => {
 })
 
 app.post('/api/submitRequest', (req, res) => {
+  console.log("receieve")
     const employee_id = req.body.employee_id;
     const type_of_request = req.body.leavetype;
     const days = req.body.days;
@@ -168,16 +167,17 @@ app.get('/api/getDashboardData', (req, res) => {
     "case when datediff(driving_license_expiry, curdate())<300 then driving_license_expiry else null end as driving_license_expiry from employee e "+
     "left join employee_detail ed on e.employee_id = ed.id "+
     "left join workpermit wp on ed.work_permit_no = wp.work_permit_no "+
-    "group by ed.work_permit_no "+
 	"union all "+
     "select null, null, null, null, null, null, null, null, null, documents, `type`, expiry_date , null, null, null, null, null from corporate_documents_expiry "+
 	"where datediff(expiry_date,curdate()) <= (reminder * 31); "+
     "update employee_detail "+
-    "set paid_leave = if({paid_leave+7+round(datediff(curdate(), start_date)/365)> 14}, 14, paid_leave+7+round(datediff(curdate(), start_date)/365)), "+
+    "set paid_leave = paid_leave+if(((7+round(datediff(curdate(), start_date)/365))>14), 14, (7+round(datediff(curdate(), start_date)/365))), "+
     "compassionate_leave = 2, medical_leave =14, last_reset = concat(year(curdate()), '-', Month(start_date), '-',day(start_date)) "+
     "where month(start_date) <= month(curdate()) and day(start_date) >= day(curdate()) and year(last_reset) < year(curdate()); "+
     "commit;"
     db.query(sqlSelect, (err, result) => {
+      console.log(err)
+      console.log(result[0])
         res.send(result[1]);
     });
 })
@@ -245,11 +245,21 @@ app.post('/api/addEmployee', (req, res) =>{
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0');
+    if(formData.forkLiftExpiry == ""){
+      var forklift = null
+    }else{
+      var forklift = formData.forkLiftExpiry
+    }
+    if(formData.driving == ""){
+      var driving = null
+    }else{
+      var driving = formData.driving
+    }
     var yyyy = today.getFullYear();
     today = yyyy + '-' + mm + '-' + dd;
     var sqlInsert = "begin;"
-    const after = " insert into employee_detail (name, IC_number, birthday, salary, email, phone_no, payNow_no, bank_acc, start_date, work_permit_no, passport_no, passport_expiry)"+
-    " values(?,?,?,?,?,?,?,?,?,?,?,?);"
+    const after = " insert into employee_detail (name, IC_number, birthday, salary, email, phone_no, payNow_no, bank_acc, start_date, work_permit_no, passport_no, passport_expiry, csoc_expiry, coretrade_expiry, forklift_expiry, driving_license_expiry)"+
+    " values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
     if(formData.length == 0){
         res.send()
     }else{
@@ -261,7 +271,7 @@ app.post('/api/addEmployee', (req, res) =>{
             }
             sqlInsert += after
             sqlInsert += " insert into employee(employee_id, position) values "+employeeValues+";" +" commit;"
-            db.query(sqlInsert, [formData.name, formData.ic, formData.birthday, formData.salary, formData.email, formData.phone,formData.paynow, formData.bank, today, permit, formData.passportNo, formData.passportExpiry], (err, result) => {
+            db.query(sqlInsert, [formData.name, formData.ic, formData.birthday, formData.salary, formData.email, formData.phone,formData.paynow, formData.bank, today, permit, formData.passportNo, formData.passportExpiry, formData.csoc, formData.coreTrade, forklift, driving], (err, result) => {
                 if(err == null){
                     console.log("added")
                     res.send("OK")
@@ -279,7 +289,7 @@ app.post('/api/addEmployee', (req, res) =>{
             sqlInsert += " insert ignore into workpermit(work_permit_no, start_date, end_date) values(?, ?, ?); "+ after
             sqlInsert += " insert into employee(employee_id, position) values "+employeeValues+";"
             " commit;"
-            db.query(sqlInsert, [permit, formData.start, formData.expire, formData.name, formData.ic, formData.birthday, formData.salary, formData.email, formData.phone,formData.paynow, formData.bank, today, permit, formData.passportNo, formData.passportExpiry], (err, result) => {
+            db.query(sqlInsert, [permit, formData.start, formData.expire, formData.name, formData.ic, formData.birthday, formData.salary, formData.email, formData.phone,formData.paynow, formData.bank, today, permit, formData.passportNo, formData.passportExpiry, formData.csoc, formData.coreTrade, forklift, driving], (err, result) => {
                 if(err == null){
                     console.log("added")
                     res.send("OK")
@@ -411,3 +421,7 @@ app.post('/api/addCorporateExpiry', (req, res)=>{
         }
     })
 })
+
+app.listen(3001, () =>
+console.log('Express server is running on localhost:3001')
+);

@@ -1,7 +1,8 @@
 import "./Employees.css"
-import $ from 'jquery';
+import $, { event } from 'jquery';
 import Swal from 'sweetalert2';
 import { useEffect, useRef, useState } from "react";
+import Form from 'react-bootstrap/Form'
 const AddEmployee = () => {
     const [showPermit, setState] = useState(false)
     const [formData, setData] = useState([]) 
@@ -22,6 +23,10 @@ const AddEmployee = () => {
     const expireref = useRef()
     const passportRef = useRef()
     const passportExpiryRef = useRef()
+    const forklift = useRef(null)
+    const CSOC = useRef()
+    const CoreTrade = useRef()
+    const driving = useRef(null)
     let previous_value = ""
     
 
@@ -32,9 +37,6 @@ const AddEmployee = () => {
             setState(false)
         }
     }
-    useEffect(() => {
-        
-    }, [selectPosition]);
 
     useEffect(()=>{
         $.ajax({
@@ -78,6 +80,18 @@ const AddEmployee = () => {
                     <label htmlFor="permit">Expiration Date</label>
                     <input ref={expireref} key="expire" type="date" name="permit" id="permit" className="form-control" required />
                 </div>
+                <div className="form-group col py-3">
+                    <label htmlFor="csoc">CSOC Expiry Date</label>
+                    <input ref={CSOC} key="csoc" type="date" name="csoc" id="csoc" className="form-control" required />
+                </div>
+                <div className="form-group col py-3">
+                    <label htmlFor="coretrade">CoreTrade Expiry Date</label>
+                    <input ref={CoreTrade} key="coretrade" type="date" name="coretrade" id="coretrade" className="form-control" required />
+                </div>
+                <div className="form-group col py-3">
+                    <label htmlFor="license">Driving License Expiry Date</label>
+                    <input ref={driving} key="license" type="date" name="license" id="license" className="form-control" />
+                </div>
             </div>
         )
     }
@@ -88,10 +102,48 @@ const AddEmployee = () => {
                 <input type="hidden" ref={permitref} value="" style={{display: 'none'}}/>
                 <input type="hidden" ref={startref} value="" style={{display: 'none'}}/>
                 <input type="hidden" ref={expireref} value="" style={{display: 'none'}}/>
+                <input type="hidden" ref={CSOC} value="" style={{display: 'none'}}/>
+                <input type="hidden" ref={CoreTrade} value="" style={{display: 'none'}}/>
+                <input type="hidden" ref={driving} value="" style={{display: 'none'}}/>
             </>
         )
     }
+
+    useEffect(()=>{
+        if(formData.length != 0){
+            console.log(formData)
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:3001/api/addEmployee',
+                processData: true,
+                data: JSON.stringify(formData, getCircularReplacer()),
+                contentType: 'application/json',
+                success: function(data) {
+                    console.log("got it")
+                    if(data === "OK"){
+                        Swal.fire(
+                            'Approve!',
+                            'Request has been approved.',
+                            'success'
+                            )
+                            .then(() => {
+                              window.location.replace('/EmployeeList')
+                            })
+                        }else{
+                            Swal.fire(
+                                'Denied!',
+                                data,
+                                'error'
+                                )
+                            }
+                        }
+            })   
+        }
+    }, [formData])
+
+    
     const handleSubmit = (e) => {
+        e.preventDefault()
         setData({
             name: nameref.current.value, 
             permit: permitref.current.value, 
@@ -107,34 +159,13 @@ const AddEmployee = () => {
             expire: expireref.current.value,
             position: position,
             passportNo: passportRef.current.value,
-            passportExpiry: passportExpiryRef.current.value
+            passportExpiry: passportExpiryRef.current.value,
+            forkLiftExpiry: forklift.current.value,
+            csoc: CSOC.current.value,
+            coreTrade: CoreTrade.current.value,
+            driving: driving.current.value
         })
-        $.ajax({
-            type: 'POST',
-            url: 'http://localhost:3001/api/addEmployee',
-            processData: true,
-            data: JSON.stringify(formData, getCircularReplacer()),
-            contentType: 'application/json',
-            success: function(data) {
-                console.log("got it")
-                if(data === "OK"){
-                    Swal.fire(
-                        'Approve!',
-                        'Request has been approved.',
-                        'success'
-                        )
-                        .then(() => {
-                          window.location.replace('/EmployeeList')
-                        })
-                    }else{
-                        Swal.fire(
-                            'Denied!',
-                            data,
-                            'error'
-                            )
-                        }
-                    }
-        })
+        
     }
 
     const getCircularReplacer = () => {
@@ -154,6 +185,15 @@ const AddEmployee = () => {
         const newList = department.filter(x=>x.department === value)
         setSelect(newList)
         ShowPosition()
+    }
+
+    const ForkLiftForm = () =>{
+        return (
+            <div className="form-group col py-3">
+                <label htmlFor="forkLift">ForkLift Expiry</label>
+                <input ref={forklift} type="date" name="forkLift" id="forkLift" className="form-control" />
+            </div>
+        )
     }
 
     const ShowPosition = () => {
@@ -243,6 +283,8 @@ const AddEmployee = () => {
                 <label htmlFor=" passportExpiry">Passport Expiry</label>
                 <input ref={passportExpiryRef} type="date" name="birthday" id="birthday" className="form-control" required />
             </div>
+            {showPermit ? <WorkPermit/> : <ShowBlank/>}
+            <ForkLiftForm/>
             <div className="form-group col py-3">
                 <label htmlFor=" birthday">Birthday</label>
                 <input ref={birthref} type="date" name="passportExpiry" id="passportExpiry" className="form-control" required />
@@ -267,7 +309,6 @@ const AddEmployee = () => {
                 <label htmlFor="bank">Bank Account</label>
                 <input ref={bankref} type="number" name="bank" id="bank" className="form-control" required/>
             </div>
-            {showPermit ? <WorkPermit/> : <ShowBlank/>}
             <button type="submit" className="blue-btn" id='submit'>Add Employee</button>
             </form>
         </div>

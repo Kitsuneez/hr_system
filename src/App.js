@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import "./App.css";
 import Navbar from './Navbar';
 import EmployeeList from './EmployeeList/EmployeeList';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Dashboard from './Dashboard/Dashboard';
 import Leave from './Leave/Leave';
 import ViewRequest from './Leave/ViewRequest';
@@ -15,37 +15,19 @@ function App(){
 
   return (
     <Router>
-      <div className="App">
-        <Navbar />
-        <div className="content">
-          <Switch>
-            <Route exact path="/">
-              <Dashboard />
-            </Route>
-            <Route path="/EmployeeList">
-              <EmployeeList />
-            </Route>
-            <Route path="/Leaves">
-              <Leave />
-            </Route>
-            <Route path="/ViewRequest">
-              <ViewRequest />
-            </Route>
-            <Route path="/CorporateExpiry">
-              <CorporateExpiry />
-            </Route>
-            <Route path="/addEmployee">
-              <AddEmployee />
-            </Route>
-            <Route path="/UpdateEmployee/:id" component={EmployeeList}>
-              <UpdateEmployee />
-            </Route>
-            <Route path="/StaffExpiry">
-              <StaffExpiry />
-            </Route>
-          </Switch>
-        </div>
-      </div>
+      <Fragment>
+          <Navbar />
+            <Routes>
+              <Route exact path="/" element={<Dashboard/>} />
+              <Route path="/EmployeeList" element={<EmployeeList />} />
+              <Route path="/Leaves" element={<Leave />} />
+              <Route path="/ViewRequest" element= {<ViewRequest/>}/>
+              <Route path="/CorporateExpiry" element={<CorporateExpiry />} />
+              <Route path="/addEmployee" element={<AddEmployee/>}/>
+              <Route path="/UpdateEmployee/:id" component={EmployeeList} element={<UpdateEmployee/>}/>
+              <Route path="/StaffExpiry" element={<StaffExpiry />}/>
+            </Routes>
+      </Fragment>
     </Router>
   )
 }
