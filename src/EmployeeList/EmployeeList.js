@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Axios from "axios";
 import './Employees.css';
 import Moment from 'react-moment';
 import $ from 'jquery'
@@ -46,9 +45,9 @@ const EmployeeList = () => {
     
     return (
       <>
-        <header><strong>Employees</strong></header>
-        <div >
-        <Button variant="primary" style={{marginLeft: '20px', marginBottom: "20px", marginRight: 'auto'}} href="AddEmployee">Add Employee</Button>
+        <header style={{textAlign: 'center'}}><strong>Employees</strong></header>
+        <div  style={{textAlign: 'center'}}>
+        <Button variant="primary" style={{float: 'center', marginBottom: "20px", marginRight: 'auto'}} href="AddEmployee">Add Employee</Button>
           <Button variant={variant} className="downdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style={{marginLeft: '20px', marginBottom: "20px", marginRight: 'auto'}}>
             Status
           </Button>

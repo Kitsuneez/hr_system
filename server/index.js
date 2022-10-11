@@ -171,7 +171,7 @@ app.get('/api/getDashboardData', (req, res) => {
     "select null, null, null, null, null, null, null, null, null, documents, `type`, expiry_date , null, null, null, null, null from corporate_documents_expiry "+
 	"where datediff(expiry_date,curdate()) <= (reminder * 31); "+
     "update employee_detail "+
-    "set paid_leave = paid_leave+if(((7+round(datediff(curdate(), start_date)/365))>14), 14, (7+round(datediff(curdate(), start_date)/365))), "+
+    "set paid_leave = if(((7+round(datediff(curdate(), start_date)/365))>14), paid_leave+14, (paid_leave+7+round(datediff(curdate(), start_date)/365))), "+
     "compassionate_leave = 2, medical_leave =14, last_reset = concat(year(curdate()), '-', Month(start_date), '-',day(start_date)) "+
     "where month(start_date) <= month(curdate()) and day(start_date) >= day(curdate()) and year(last_reset) < year(curdate()); "+
     "commit;"

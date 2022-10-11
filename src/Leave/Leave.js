@@ -98,8 +98,10 @@ const Leave = () => {
 
     return (
         <>
-            <header><strong>Leave</strong></header>
-            <a className="btn btn-danger" href="/viewRequest">View All Requests</a>
+            <header style={{textAlign: 'center'}}><strong>Leave</strong></header>
+            <div  style={{textAlign: 'center'}}>
+                <a className="btn btn-danger" href="/viewRequest">View All Requests</a>
+            </div>
             <table className="table table-striped table-bordered container">
             <thead>
                 <tr>

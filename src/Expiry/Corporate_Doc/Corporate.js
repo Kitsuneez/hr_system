@@ -140,15 +140,17 @@ const Corporate_expiry = () => {
                 <Button variant="secondary" onClick={toggleModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
-              <header><strong>Corporate Documents Expiry</strong></header>
-              <Button variant="primary" style={{marginLeft: '80%', marginBottom: "20px", marginRight: 'auto'}} onClick={()=>setShowAdd(true)}>Add document</Button>
+              <header style={{textAlign: 'center'}}><strong>Corporate Documents Expiry</strong></header>
+              <div  style={{textAlign: 'center'}}>
+                <Button variant="primary"onClick={()=>setShowAdd(true)}>Add document</Button>
+              </div>
               {type.map((types)=>{
                 if(prevtype !== types){
                     prevtype = types
                     return (
                         <div>
-                            <header style={{textAlign: 'left', marginLeft:'80px'}}>{types}</header>
-                            <table className="table table-striped table-bordered container">
+                            <header style={{textAlign: 'left', marginLeft:'20px'}}>{types}</header>
+                            <table className="table table-striped table-bordered" style={{marginLeft:'40px'}}>
                             <thead>
                                 <tr>
                                 <th scope="col">Name</th>
