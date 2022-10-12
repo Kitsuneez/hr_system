@@ -26,6 +26,27 @@ const EmployeeList = () => {
         }
       })
     }, [])
+    const setStatus = (e) => {
+      var temp = e.split(",")
+      if(temp[0] == "active"){
+        var status = "inactive"
+      }else if(temp[0] == "inactive"){
+        var status = "active"
+      }
+      console.log(status)
+      $.ajax({
+        method: "POST",
+        url: "http://localhost:3001/api/updateStatus",
+        data:{
+          status: status,
+          id: temp[1],
+        },
+        success: function(data){
+          window.location.replace("http://localhost:3000/employeeList")
+        }
+      })
+    }
+
     var id = 0;
 
     const setFilter = (e) => {
@@ -110,10 +131,10 @@ const EmployeeList = () => {
                     work_permit_no = val.work_permit_no;
                     expiry_date = <Moment format="DD/MMM/YYYY" className="date">{val.expiry_date}</Moment>
                   }
-                  id = val.employee_id
+                  id = val.id
                   return (
                       <tr>
-                        <th scope="row">{val.employee_id}</th>
+                        <th scope="row">{val.id}</th>
                         <td>
                           {val.status}
                         </td>
@@ -127,17 +148,17 @@ const EmployeeList = () => {
                           </ul>
                         </td>
                         <td>
-                          <ul id={val.employee_id + "position"} style={{textAlign:'left'}}>
+                          <ul id={val.id + "position"} style={{textAlign:'left'}}>
                             <li>{val.position}</li>
                           </ul>
                         </td>
                         <td>
-                          <Link to={"/UpdateEmployee/"+val.employee_id}>
+                          <Link to={"/UpdateEmployee/"+val.id}>
                             <Button variant="secondary" style={{minWidth:"125px", paddingLeft: '0px', paddingRight: '0px', marginBottom:'2px'}}>
                                 Update
                               </Button>
                           </Link>
-                          <Button variant="secondary" style={{minWidth:"125px", paddingLeft: '0px', paddingRight: '0px'}}>Set Status</Button>
+                          <Button variant="secondary" style={{minWidth:"125px", paddingLeft: '0px', paddingRight: '0px'}} value={[val.status, val.id]} onClick={(e)=>setStatus(e.target.value)}>Set Status</Button>
                         </td>
                       </tr>
                   )

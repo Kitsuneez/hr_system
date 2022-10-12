@@ -14,7 +14,7 @@ app.use(cors())
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Hahahehe31!',
+    password: 'Nn@84564519',
     database: 'porousway',
     multipleStatements: true
 })
@@ -93,8 +93,8 @@ db.connect(function(err){
 
 
 app.get('/api/getEmployeeList', (req, res) => {
-    const sqlSelect = "select e.employee_id, `status`,`name`,IC_number, birthday, department, e.position, ed.start_date, salary, email, phone_No, PayNow_No, bank_acc, ed.work_permit_no from employee e "+
-    "left join employee_detail ed on e.employee_id = ed.id "+
+    const sqlSelect = "select id, `status`,`name`,IC_number, birthday, department, e.position, ed.start_date, salary, email, phone_No, PayNow_No, bank_acc, ed.work_permit_no from employee_detail ed "+
+    "left join employee e on ed.id = e.employee_id "+
     "left join position p on e.position = p.position "+
     "order by id "
     db.query(sqlSelect, (err, result) => {
@@ -266,12 +266,14 @@ app.post('/api/addEmployee', (req, res) =>{
         if(formData.permit == ""){
             var employeeValues = []
             var permit = null
+            var csoc = null
+            var coreTrade = null
             for (var i = 0; i < position.length; i++){
                 employeeValues.push(`(last_insert_id(), '${position[i]}')`)
             }
             sqlInsert += after
             sqlInsert += " insert into employee(employee_id, position) values "+employeeValues+";" +" commit;"
-            db.query(sqlInsert, [formData.name, formData.ic, formData.birthday, formData.salary, formData.email, formData.phone,formData.paynow, formData.bank, today, permit, formData.passportNo, formData.passportExpiry, formData.csoc, formData.coreTrade, forklift, driving], (err, result) => {
+            db.query(sqlInsert, [formData.name, formData.ic, formData.birthday, formData.salary, formData.email, formData.phone,formData.paynow, formData.bank, today, permit, formData.passportNo, formData.passportExpiry, csoc, coreTrade, forklift, driving], (err, result) => {
                 if(err == null){
                     console.log("added")
                     res.send("OK")
@@ -311,8 +313,8 @@ app.get('/api/getDepartment', (req, res) => {
 
 app.get('/api/updateEmployee/:id', (req, res) => {
     var id = req.params.id
-    var sqlSelect = "SELECT * from employee e "+
-    " left join employee_detail ed on e.employee_id = ed.id"+
+    var sqlSelect = "SELECT * from employee_detail ed "+
+    " left join employee e on ed.id = e.employee_id"+
     " left join workpermit wp on ed.work_permit_no = wp.work_permit_no"+
     " where id=?"
     db.query(sqlSelect, [id], (err, result) => {
@@ -414,6 +416,22 @@ app.post('/api/addCorporateExpiry', (req, res)=>{
     const sqlSelect = "insert into corporate_documents_expiry values(?,?,?,?)"
     db.query(sqlSelect, [name, type, expiry_date, reminder], (err, result) => {
         if(err == null){
+            res.send("OK")
+        }else{
+            console.log(err)
+            res.send(err)
+        }
+    })
+})
+
+app.post('/api/updateStatus', (req, res)=>{
+    const status = req.body.status
+    const id = req.body.id
+    console.log(status)
+    const sqlUpdate = "UPDATE employee_detail set status = ? where id = ?"
+    db.query(sqlUpdate, [status, id], (err, result) => {
+        if(err == null){
+            console.log(result)
             res.send("OK")
         }else{
             console.log(err)
